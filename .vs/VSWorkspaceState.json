@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\public",
-    "\\src"
+    "\\src",
+    "\\src\\components"
   ],
-  "SelectedNode": "\\.gitignore",
+  "SelectedNode": "\\src\\App.js",
   "PreviewInSolutionExplorer": false
 }
