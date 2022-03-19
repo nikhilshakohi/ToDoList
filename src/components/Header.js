@@ -4,9 +4,10 @@ import { useState, forwardRef } from 'react';
 import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, Slide } from '@mui/material';
 import { SpeedDial, SpeedDialIcon } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+//Pages
+import { useAuth } from '../auth/AuthContext';
 
 const Transition = forwardRef(function Transition(props, ref) { return <Slide direction="up" ref={ref} {...props} />; });
-
 
 const Header = () => {
 
@@ -16,11 +17,9 @@ const Header = () => {
     const handleTaskAddDialogClose = () => { setTaskAddDialog(false); };
     const handleOpenMenu = (event) => { setAnchorElNav(event.currentTarget); };//Open Menu
     const handleCloseMenu = () => { setAnchorElNav(null); };//Close Menu
-    /*const currentUser = useAuth();
+    const currentUser = useAuth() //From AuthContext
     const menuItems = currentUser.currentUser ? ['EXPENSES', 'TASKS', 'PROFILE', 'LOGOUT'] : [''];//Menu Items
-    */
-    const menuItems = ['EXPENSES', 'TASKS', 'PROFILE', 'LOGOUT'];//Menu Items
-
+    
     return (
         <div>
             {/*Header div*/}
@@ -43,7 +42,7 @@ const Header = () => {
                 </Toolbar>
             </AppBar>
             {/*Add Button at bottom*/}
-            <SpeedDial ariaLabel="SpeedDial basic example" sx={{ position: 'absolute', bottom: 16, right: 16 }} icon={<SpeedDialIcon />} onClick={handleTaskAddDialog}> </SpeedDial>
+            {currentUser.currentUser && <SpeedDial ariaLabel="SpeedDial basic example" sx={{ position: 'absolute', bottom: 16, right: 16 }} icon={<SpeedDialIcon />} onClick={handleTaskAddDialog}> </SpeedDial> }
             {/*Add Task Dialog*/}
             <Dialog open={taskAddDialog} TransitionComponent={Transition} keepMounted onClose={handleTaskAddDialogClose} aria-describedby="Add Task Form">
                 <DialogTitle>{"Add New Task"}</DialogTitle>

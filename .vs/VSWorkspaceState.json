@@ -3,8 +3,9 @@
     "",
     "\\public",
     "\\src",
+    "\\src\\auth",
     "\\src\\components"
   ],
-  "SelectedNode": "\\src\\App.js",
+  "SelectedNode": "\\src\\components\\Login.js",
   "PreviewInSolutionExplorer": false
 }
