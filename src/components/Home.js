@@ -38,6 +38,7 @@ const Home = () => {
     //Check for user details changes
     useEffect(() => {
         setUserDetails({ email: currentUser.currentUser.email, displayName: currentUser.currentUser.displayName });
+        return () => setUserDetails([]); //Cleanup function
     }, [currentUser.currentUser]);
 
     //Check if pending task data changes
