@@ -26,7 +26,10 @@ const Login = () => {
 	const navigate = useNavigate(); //For routing
 
 	useEffect(() => {//Loader until currentUser is set
-		const checker = () => { currentUser.currentUser ? (setLoadingBackdrop(true)) : (setTimeout(() => { setLoadingBackdrop(false) }, 1000)); }
+		const checker = () => {
+			currentUser.currentUser ? (setLoadingBackdrop(true)) : (setTimeout(() => { setLoadingBackdrop(false) }, 1000));
+		}
+		checker();
 		return () => checker  //Clean up of loader
 	}, [currentUser.currentUser]);
 
