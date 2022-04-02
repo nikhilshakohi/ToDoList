@@ -8,7 +8,8 @@ import { AuthProvider } from './auth/AuthContext';
 ReactDOM.render(
   <React.StrictMode>
         <Router>
-            { /*Added AuthProvider so that all the functions defined in AuthContext.js will be accessed by components inside AuthProvider*/}
+            { /*Added AuthProvider defined in AuthContext.js */}
+            {/*so that all the functions defined in AuthContext.js will be accessed by components inside AuthProvider*/}
             <AuthProvider>
                 <App />
             </AuthProvider>

@@ -1,5 +1,5 @@
 /*React*/
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 /*Pages*/
 import Header from './Header';
@@ -15,16 +15,21 @@ const Login = () => {
 	const userInputs = useRef({ loginEmail: '', loginPassword: '', signupEmail: '', signupPassword: '', signupName: '' });
 	const [loginDiv, setLoginDiv] = useState(true);//Set Login at start
 	const [showPassword, setShowPassword] = useState(false);//Password Toggle
-	const [loadingButton, setLoadingButton] = useState(false);//Loader at login button
-	const [loadingBackDrop, setLoadingBackdrop] = useState(false);//Full screen loader
 	const [loginErrors, setLoginErrors] = useState({ email: '', password: '' });//Login Errors
 	const [signupErrors, setSignupErrors] = useState({ email: '', name: '', password: '' });//Signup Errors
-	const { login, signup, forgotPasswordMail, signInWithGoogleViaPopup } = useAuth(); //Get Login function from AutContext
-	const navigate = useNavigate(); //For routing
+	const [loadingButton, setLoadingButton] = useState(false);//Loader at login button
+	const [loadingBackDrop, setLoadingBackdrop] = useState(true);//Full screen loader
 	const [alert, setAlert] = useState('');
 	const [alertSeverity, setAlertSeverity] = useState('success');
+	const { login, signup, forgotPasswordMail, signInWithGoogleViaPopup } = useAuth(); //Get Login function from AutContext
+	const currentUser = useAuth(); //Get currentUser Status
+	const navigate = useNavigate(); //For routing
 
-	
+	useEffect(() => {//Loader until currentUser is set
+		const checker = () => { currentUser.currentUser ? (setLoadingBackdrop(true)) : (setTimeout(() => { setLoadingBackdrop(false) }, 1000)); }
+		return () => checker  //Clean up of loader
+	}, [currentUser.currentUser]);
+
 	/*Login Submit functions*/
 	const handleSubmit = (event, type) => {
 		setLoadingBackdrop(true);
@@ -36,13 +41,13 @@ const Login = () => {
 			clearValidation();//Clearing old Validation errors
 			if (email === '' && password === '') {
 				setLoginErrors({ email: 'Please enter some input.', password: 'Please enter some input.' });
-				setLoadingButton(false);//Loader
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else if (!/^[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)) {
 				setLoginErrors({ email: 'Invalid Email', password: loginErrors.password });
-				setLoadingButton(false);//Loader
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else if (!/^[a-zA-Z0-9!@#$%^&*]{6,15}$/.test(password)) {
 				setLoginErrors({ password: 'Invalid Password', email: loginErrors.email });
-				setLoadingButton(false);//Loader
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else {
 				/*Login with firebase*/
 				checkLogin(email, password);
@@ -53,19 +58,22 @@ const Login = () => {
 			clearValidation();//Clearing old Validation errors
 			if (email === '' && password === '' && name=== '') {
 				setSignupErrors({ email: 'Please enter some input.', password: 'Please enter some input.', name: 'Please enter some input.' });
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else if (!/^[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)) {
 				setSignupErrors({ email: 'Invalid Email', password: signupErrors.password, name: signupErrors.name });
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else if (!/^[a-zA-Z ]+$/.test(name)) {
 				setSignupErrors({ name: 'Invalid Name', email: signupErrors.email, password: signupErrors.password });
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else if (!/^[a-zA-Z0-9!@#$%^&*]{6,15}$/.test(password)) {
-				setSignupErrors({ password: 'Invalid Password', email: signupErrors.email, name: signupErrors.name});
+				setSignupErrors({ password: 'Invalid Password', email: signupErrors.email, name: signupErrors.name });
+				setLoadingButton(false); setLoadingBackdrop(false); //Loader
 			} else {
 				/*Signup with firebase*/
 				checkSignup(email, password, name);
 				setLoadingButton(false);//Loader
 			}
 		}
-		setLoadingBackdrop(false);
 	};
 
 	//Check Login from AuthContext
@@ -76,6 +84,7 @@ const Login = () => {
 			await login(email, password);
 			navigate('/Home');	
 		} catch (error) {
+			setLoadingBackdrop(false); //Remove Loader
 			if (error.code === 'auth/wrong-password') {
 				setLoginErrors({ password: 'Incorrect Password!', email: loginErrors.email });
 			} else if (error.code === 'auth/user-not-found') {
@@ -95,6 +104,7 @@ const Login = () => {
 		try {
 			await signInWithGoogleViaPopup();
 		} catch (error) {
+			setLoadingBackdrop(false); //Remove Loader
 			//const credential = GoogleAuthProvider.credentialFromError(error);// The AuthCredential type that was used.
 			setAlertSeverity('error');
 			setAlert('Something Went Wrong! Please Try Again');
@@ -110,6 +120,7 @@ const Login = () => {
 			await signup(email, password, name); 
 			navigate("/Home");
 		} catch (error) {
+			setLoadingBackdrop(false); //Remove Loader
 			console.log(error);
 			if (error.code === 'auth/email-already-in-use') {
 				setSignupErrors({ email: 'Email Already registered. Try a new one!', password: signupErrors.password, name: signupErrors.name });
