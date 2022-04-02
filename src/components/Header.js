@@ -1,58 +1,65 @@
 //React Tools
-import { useState, forwardRef } from 'react';
+import { useState } from 'react';
 //Material UI
-import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, Slide } from '@mui/material';
-import { SpeedDial, SpeedDialIcon } from '@mui/material';
+import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, Button, DialogTitle } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 //Pages
 import { useAuth } from '../auth/AuthContext';
 
-const Transition = forwardRef(function Transition(props, ref) { return <Slide direction="up" ref={ref} {...props} />; });
-
 const Header = () => {
 
-    const [taskAddDialog, setTaskAddDialog] = useState(false);
     const [anchorElNav, setAnchorElNav] = useState(null); //Anchor El tag in header-menu
-    const handleTaskAddDialog = () => { setTaskAddDialog(true); };
-    const handleTaskAddDialogClose = () => { setTaskAddDialog(false); };
     const handleOpenMenu = (event) => { setAnchorElNav(event.currentTarget); };//Open Menu
     const handleCloseMenu = () => { setAnchorElNav(null); };//Close Menu
     const currentUser = useAuth() //From AuthContext
-    const menuItems = currentUser.currentUser ? ['EXPENSES', 'TASKS', 'PROFILE', 'LOGOUT'] : [''];//Menu Items
+    const menuItems = currentUser.currentUser ? ['PROFILE', 'LOGOUT'] : [''];//Menu Items
+    const { logout } = useAuth();
+    const [profileDialog, setProfileDialog] = useState(false);
     
     return (
         <div>
             {/*Header div*/}
             <AppBar position="static">
                 <Toolbar variant="regular">
+                    {/*App Name*/}
                     <Box sx={{ flexGrow: 1, display: 'flex', }}>
-                        <Typography variant="h5" color="inherit" component="div">Jarvis</Typography>
+                        <Typography variant="h5" color="inherit" component="div">To-Do</Typography>
                     </Box>
+                    {/*Menu Bar in desktop*/}
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end' }}>
-                        {menuItems.map((m) => (<MenuItem key={m}><Typography textAlign="center">{m}</Typography></MenuItem>))}
+                        {menuItems.map((item) => (<MenuItem key={item}><Typography
+                            onClick={item === 'LOGOUT' ? logout : (item==='PROFILE' ? (() => setProfileDialog(true)) : null ) }
+                            textAlign="center">{item}</Typography></MenuItem>))}
                     </Box>
-                    {/*Responsive Menu Icon*/}
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'flex-end' }}>
+                    {/*Menu Bar in Mobile (Icon)*/}
+                    {currentUser.currentUser &&
+                        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'flex-end' }}>
                         <IconButton edge="end" color="inherit" aria-label="menu" aria-controls="header-menuIcon" aria-haspopup="true" onClick={handleOpenMenu} sx={{ mr: 0 }}><MenuIcon /></IconButton>
-                    </Box>
+                        </Box>
+                    }
                     <Menu id="header-menuIcon" anchorEl={anchorElNav} anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'left', }}
                         open={Boolean(anchorElNav)} onClose={handleCloseMenu} sx={{ display: { xs: 'block', md: 'none' }, }}>
-                        {menuItems.map((m) => (<MenuItem key={m}><Typography textAlign="center">{m}</Typography></MenuItem>))}
+                        {menuItems.map((item) => (<MenuItem key={item}><Typography
+                            onClick={item === 'LOGOUT' ? logout : (item === 'PROFILE' ? (() => setProfileDialog(true)) : null) }
+                            textAlign="center">{item}</Typography></MenuItem>))}
                     </Menu>
+                    {/*Profile Dialog*/}
+                    {
+                        profileDialog && currentUser.currentUser &&
+                        <Dialog open={profileDialog} onClose={() => setProfileDialog(false)} fullWidth maxWidth='sm' >
+                            <DialogTitle>Profile Details</DialogTitle>
+                            <DialogContent sx={{mt:2}}>
+                                <Typography variant="body1">Name: </Typography><Typography variant="h6" sx={{pb:2}}>{currentUser.currentUser.displayName}</Typography>
+                                <Typography variant="body1">Email: </Typography><Typography variant="h6">{currentUser.currentUser.email}</Typography>
+                            </DialogContent>
+                            <DialogActions sx={{ pb: 2 }}>
+                                <Button variant="outlined" color="error" onClick={() => setProfileDialog(false)}>CLOSE</Button>
+                            </DialogActions>
+                        </Dialog>
+                    }
                 </Toolbar>
             </AppBar>
-            {/*Add Button at bottom*/}
-            {currentUser.currentUser && <SpeedDial ariaLabel="SpeedDial basic example" sx={{ position: 'absolute', bottom: 16, right: 16 }} icon={<SpeedDialIcon />} onClick={handleTaskAddDialog}> </SpeedDial> }
-            {/*Add Task Dialog*/}
-            <Dialog open={taskAddDialog} TransitionComponent={Transition} keepMounted onClose={handleTaskAddDialogClose} aria-describedby="Add Task Form">
-                <DialogTitle>{"Add New Task"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="Add Task Form">
-                        Task Add date, time, data
-                        Tester
-                    </DialogContentText>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 };

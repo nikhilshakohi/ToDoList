@@ -7,11 +7,12 @@ import { useAuth } from './auth/AuthContext';
 
 function App() {
 
-    const currentUser = useAuth();
+    const currentUser = useAuth(); //Get status of user from AuthContext
 
     return (
         <div>
             <Routes>
+                <Route path="/" element={currentUser.currentUser ? <Home /> : <Login />} />
                 <Route path="/Login" element={currentUser.currentUser ? <Home /> : <Login /> } />
                 <Route path="/Home" element={currentUser.currentUser ? <Home /> : <Login /> } />
             </Routes>
